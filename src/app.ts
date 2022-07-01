@@ -1,4 +1,46 @@
-
+interface Validatable {
+  value: string | number;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+}
+function validate(validatableInput: Validatable) {
+  
+  let isValid = true;
+  if (validatableInput.required) {
+    isValid = isValid && validatableInput.value.toString().trim().length > 0;
+    
+  }
+  if (
+    validatableInput.minLength != null &&
+    typeof validatableInput.value === "string"
+  ) {
+    isValid =
+      isValid && validatableInput.value.length > validatableInput.minLength;
+  }
+  if (
+    validatableInput.maxLength != null &&
+    typeof validatableInput.value === "string"
+  ) {
+    isValid =
+      isValid && validatableInput.value.length < validatableInput.maxLength;
+  }
+  if (
+    validatableInput.max != null &&
+    typeof validatableInput.value === "number"
+  ) {
+    isValid = isValid && validatableInput.value < validatableInput.max;
+  }
+  if (
+    validatableInput.min != null &&
+    typeof validatableInput.value === "number"
+  ) {
+    isValid = isValid && validatableInput.value > validatableInput.min;
+  }
+  return isValid;
+}
 
 //Project Input Class
 class ProjectInput {
@@ -9,6 +51,8 @@ class ProjectInput {
   descriptionInputElement: HTMLInputElement;
   peopleInputElement: HTMLInputElement;
 
+  // for error handling
+  
 
   constructor() {
     this.templateElement = document.getElementById(
@@ -20,52 +64,79 @@ class ProjectInput {
       true
     );
     this.formElement = importedNode.firstElementChild as HTMLFormElement;
-    this.formElement.id = "user-input";    
-    this.titleInputElement = this.formElement.querySelector("#title")! as HTMLInputElement;
-    this.descriptionInputElement = this.formElement.querySelector("#description")! as HTMLInputElement;
-    this.peopleInputElement = this.formElement.querySelector("#people")! as HTMLInputElement;
-    
+    this.formElement.id = "user-input";
+    this.titleInputElement = this.formElement.querySelector(
+      "#title"
+    )! as HTMLInputElement;
+    this.descriptionInputElement = this.formElement.querySelector(
+      "#description"
+    )! as HTMLInputElement;
+    this.peopleInputElement = this.formElement.querySelector(
+      "#people"
+    )! as HTMLInputElement;
+
+
     this.configure();
     this.attach();
   }
 
-  private gatherInput() : [string, string, number] | void{
-    const gatheredTitle = this.titleInputElement.value
-    const gatheredDescription = this.descriptionInputElement.value
+  private gatherInput(): [string, string, number] | void {
+    const gatheredTitle = this.titleInputElement.value;
+    const gatheredDescription = this.descriptionInputElement.value;
     const gatheredPeople = this.peopleInputElement.value;
-    if(gatheredTitle.trim() === "" || gatheredDescription.trim() === "" || gatheredPeople.trim() === ""){
-      alert("Please fill all areas")
+
+    const validateTitle: Validatable = {
+      value: gatheredTitle,
+      required: true,
+      minLength: 5,
+      maxLength: 30,
+    };
+
+    const validateDescription: Validatable = {
+      value: gatheredDescription,
+      required: true,
+      minLength: 5,
+      maxLength: 100,
+    };
+    const validatePeople = {
+      value: gatheredPeople,
+      min: 1,
+      max: 5,
+      required: true,
+    };
+    if (
+      validate(validateTitle) &&
+      validate(validateDescription) &&
+      validate(validatePeople)
+    ) {
+      return [gatheredTitle, gatheredDescription, +gatheredPeople];
+    } else {
+      alert("Fill all areas");
       return;
-    }else{
-      return [gatheredTitle, gatheredDescription, +gatheredPeople]
     }
   }
 
-  private clearInput(){
-    this.titleInputElement.value = ""
-    this.peopleInputElement.value = ""
-    this. descriptionInputElement.value = ""
+  private clearInput() {
+    this.titleInputElement.value = "";
+    this.peopleInputElement.value = "";
+    this.descriptionInputElement.value = "";
   }
 
-  submitHandler(event: Event){
+  submitHandler(event: Event) {
     event.preventDefault();
     const formInputs = this.gatherInput();
-    if(Array.isArray(formInputs)){
-      const [title, description, people] = formInputs
-      console.log(title, description, people)
-      this.clearInput()
+    if (Array.isArray(formInputs)) {
+      const [title, description, people] = formInputs;
+      console.log(title, description, people);
+      this.clearInput();
     }
-   
   }
-  configure(){
-    this.formElement.addEventListener("submit", this.submitHandler.bind(this))
+  configure() {
+    this.formElement.addEventListener("submit", this.submitHandler.bind(this));
   }
   attach() {
     this.hostElement.insertAdjacentElement("afterbegin", this.formElement);
   }
-
-
-
 }
 
 const newIns = new ProjectInput();
