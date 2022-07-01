@@ -42,6 +42,38 @@ function validate(validatableInput: Validatable) {
   return isValid;
 }
 
+//Project List Class
+class ProjectList{
+  templateElement: HTMLTemplateElement;
+  hostElement:HTMLDivElement;
+  sectionElement:HTMLElement
+  
+
+  constructor(private type: "active" | "finished"){
+    this.templateElement = document.querySelector("#project-list")! as HTMLTemplateElement;
+    this.hostElement = document.querySelector("#app")! as HTMLDivElement;
+    const importedNode = document.importNode(this.templateElement.content, true);
+    this.sectionElement = importedNode.firstElementChild as HTMLElement;
+    this.sectionElement.id = `${type}-projects`
+    this.attach();
+    this.renderContent();
+
+  }
+
+ private renderContent(){
+  const ListId = `${this.type}-projects-list`;
+   const ulList = this.sectionElement.querySelector("ul")! as HTMLUListElement;
+   ulList.id = ListId;
+   const sectionHeaderH2 = this.sectionElement.querySelector("h2")! as HTMLElement;
+   sectionHeaderH2.textContent = `${this.type.toUpperCase()} PROJECTS`
+
+ } 
+  private attach(){
+    this.hostElement.insertAdjacentElement("beforeend",this.sectionElement)
+  }
+
+}
+
 //Project Input Class
 class ProjectInput {
   templateElement: HTMLTemplateElement;
@@ -74,7 +106,6 @@ class ProjectInput {
     this.peopleInputElement = this.formElement.querySelector(
       "#people"
     )! as HTMLInputElement;
-
 
     this.configure();
     this.attach();
@@ -140,3 +171,5 @@ class ProjectInput {
 }
 
 const newIns = new ProjectInput();
+const activePrjects = new ProjectList("active");
+const finishedProjects = new ProjectList("finished")
