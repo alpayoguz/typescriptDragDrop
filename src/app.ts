@@ -171,5 +171,6 @@ class ProjectInput {
 }
 
 const newIns = new ProjectInput();
-const activePrjects = new ProjectList("active");
-const finishedProjects = new ProjectList("finished")
+const activeProjectsList = new ProjectList("active");
+const finishedProjectsList = new ProjectList("finished")
+
